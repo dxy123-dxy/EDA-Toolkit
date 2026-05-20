@@ -19,7 +19,11 @@ from eda_toolkit.eda.univariate import analyze_univariate
 from eda_toolkit.eda.multivariate import analyze_multivariate
 from eda_toolkit.etl.registry import get_operator, list_operators
 from eda_toolkit.etl.operator import OperatorContext
-from eda_toolkit.io.loaders import load_dataset, load_dataset_from_upload
+from eda_toolkit.io.loaders import (
+    load_dataset,
+    load_dataset_from_upload,
+    load_dataset_from_uploads,
+)
 from eda_toolkit.viz import plots as viz_plots
 
 ROOT = Path(__file__).resolve().parents[3]
@@ -46,15 +50,25 @@ def _load_uploaded(
     lat_col: str,
 ) -> None:
     try:
-        ds = load_dataset_from_upload(
-            uploaded.name,
-            uploaded.getvalue(),
-            time_column=time_column or None,
-            lon_column=lon_col,
-            lat_column=lat_col,
-        )
+        files = uploaded if isinstance(uploaded, list) else [uploaded]
+        payloads = [(u.name, u.getvalue()) for u in files]
+        if len(payloads) == 1:
+            ds = load_dataset_from_upload(
+                payloads[0][0],
+                payloads[0][1],
+                time_column=time_column or None,
+                lon_column=lon_col,
+                lat_column=lat_col,
+            )
+        else:
+            ds = load_dataset_from_uploads(
+                payloads,
+                time_column=time_column or None,
+                lon_column=lon_col,
+                lat_column=lat_col,
+            )
         st.session_state.dataset = ds
-        st.session_state.file_name = uploaded.name
+        st.session_state.file_name = ", ".join(u.name for u in files)
         st.session_state.profile = None
         st.session_state.eda_result = None
         st.session_state.last_error = None
@@ -106,11 +120,30 @@ def _render_sidebar() -> dict[str, Any]:
     lat_col = st.sidebar.text_input("CSV 纬度列", value="latitude")
 
     if source == "上传文件":
-        uploaded = st.sidebar.file_uploader(
-            "选择数据文件",
-            type=["geojson", "json", "csv", "tsv", "shp", "gpkg", "parquet", "geoparquet"],
+        st.sidebar.caption(
+            "Shapefile 需 **多选** 同目录下 .shp、.shx、.dbf（及 .prj），"
+            "或上传包含全套文件的 .zip。"
         )
-        if uploaded is not None:
+        uploaded = st.sidebar.file_uploader(
+            "选择数据文件（可多选）",
+            type=[
+                "geojson",
+                "json",
+                "csv",
+                "tsv",
+                "shp",
+                "shx",
+                "dbf",
+                "prj",
+                "cpg",
+                "zip",
+                "gpkg",
+                "parquet",
+                "geoparquet",
+            ],
+            accept_multiple_files=True,
+        )
+        if uploaded:
             if st.sidebar.button("加载数据", type="primary", use_container_width=True):
                 _load_uploaded(uploaded, time_column.strip() or None, lon_col, lat_col)
     else:

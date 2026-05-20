@@ -42,3 +42,14 @@ streamlit run src/eda_toolkit/ui/app.py
 | ETL 算子 | 查看并试跑 `profile` / `eda_run` |
 
 侧边栏可上传 **GeoJSON、CSV** 等，或一键加载内置样例数据。
+
+### Shapefile 上传说明
+
+Shapefile **不是单个 .shp 文件**，而是多文件组合（至少 `.shp` + `.shx` + `.dbf`，建议含 `.prj`）。
+
+在 Web 端请任选其一：
+
+1. **多选**：按住 Ctrl，一次选中同目录下 `kel_符合标准1.shp`、`.shx`、`.dbf`、`.prj` 等  
+2. **ZIP**：将整套文件打成 zip 后上传  
+
+仅上传 `.shp` 时，程序会把文件放到临时目录，找不到同名的 `.shx`，因而报错（与您磁盘上是否有 .shx 无关）。
