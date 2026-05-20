@@ -1,0 +1,10 @@
+{
+  "profile": true,
+  "univariate": true,
+  "multivariate": true,
+  "pca_components": 3,
+  "plots": true,
+  "plot_options": {
+    "timeseries_title": "Sample spatio-temporal EDA"
+  }
+}

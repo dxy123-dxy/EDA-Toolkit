@@ -1,0 +1,63 @@
+# EDA-Toolkit
+
+时空数据探索性分析（EDA）与经典空间统计算法工具包，对应「时空数据分析挖掘」模块阶段 1。
+
+- 远程仓库：[dxy123-dxy/EDA-Toolkit](https://github.com/dxy123-dxy/EDA-Toolkit)
+- 技术路线：见 [docs/技术路线-时空数据分析挖掘.md](docs/技术路线-时空数据分析挖掘.md)
+
+## 功能（当前 v0.1）
+
+| 模块 | 状态 |
+|------|------|
+| 数据接入与 `SpatioTemporalDataset` | ✅ |
+| Profile（质量检查 + 元数据 JSON） | ✅ |
+| 单变量 / 多变量 EDA | ✅ 基础版 |
+| 可视化（时间序列、choropleth） | ✅ 基础版 |
+| ETL 算子契约与注册表 | ✅ 骨架 |
+| 点模式 / 面 LISA / 克里金 | 🔜 阶段 1.2 |
+
+## 安装
+
+```bash
+cd 探索性数据分析
+python -m venv .venv
+.venv\Scripts\activate   # Windows
+pip install -e ".[dev,spatial,kriging]"
+```
+
+建议使用 **Python 3.10–3.12**（部分地理库对 3.14 可能尚未完全支持）。
+
+## 快速开始
+
+```bash
+# 数据概况
+steda profile --input examples/data/sample_points.geojson --output output/profile
+
+# 完整 EDA（配置见 examples/config/eda_default.json）
+steda run --input examples/data/sample_points.geojson --config examples/config/eda_default.json --output output/eda
+
+# 列出已注册 ETL 算子
+steda operators list
+```
+
+## 项目结构
+
+```text
+src/eda_toolkit/
+  io/           # 读写与 SpatioTemporalDataset
+  eda/          # profile, univariate, multivariate, runner
+  viz/          # 绘图
+  algorithms/   # 点模式、面数据、插值（逐步实现）
+  etl/          # 算子注册与 JSON Schema
+  cli/          # Typer 命令行
+```
+
+## 开发
+
+```bash
+pytest tests/ -v
+```
+
+## 许可证
+
+MIT

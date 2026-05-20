@@ -1,0 +1,14 @@
+{
+  "type": "FeatureCollection",
+  "features": [
+    {"type": "Feature", "properties": {"timestamp": "2024-01-01", "pm25": 35.2, "temp": 5.1}, "geometry": {"type": "Point", "coordinates": [116.40, 39.90]}},
+    {"type": "Feature", "properties": {"timestamp": "2024-01-01", "pm25": 42.0, "temp": 4.8}, "geometry": {"type": "Point", "coordinates": [116.41, 39.91]}},
+    {"type": "Feature", "properties": {"timestamp": "2024-01-01", "pm25": 28.5, "temp": 5.5}, "geometry": {"type": "Point", "coordinates": [116.39, 39.89]}},
+    {"type": "Feature", "properties": {"timestamp": "2024-02-01", "pm25": 55.1, "temp": 8.2}, "geometry": {"type": "Point", "coordinates": [116.40, 39.90]}},
+    {"type": "Feature", "properties": {"timestamp": "2024-02-01", "pm25": 48.3, "temp": 7.9}, "geometry": {"type": "Point", "coordinates": [116.41, 39.91]}},
+    {"type": "Feature", "properties": {"timestamp": "2024-02-01", "pm25": 61.0, "temp": 8.5}, "geometry": {"type": "Point", "coordinates": [116.39, 39.89]}},
+    {"type": "Feature", "properties": {"timestamp": "2024-03-01", "pm25": 40.0, "temp": 12.0}, "geometry": {"type": "Point", "coordinates": [116.40, 39.90]}},
+    {"type": "Feature", "properties": {"timestamp": "2024-03-01", "pm25": 38.5, "temp": 11.5}, "geometry": {"type": "Point", "coordinates": [116.41, 39.91]}},
+    {"type": "Feature", "properties": {"timestamp": "2024-03-01", "pm25": 45.2, "temp": 12.3}, "geometry": {"type": "Point", "coordinates": [116.39, 39.89]}}
+  ]
+}

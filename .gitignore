@@ -1,0 +1,35 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+*.egg
+.venv/
+venv/
+.env
+
+# IDE
+.idea/
+.vscode/
+*.swp
+
+# Project outputs
+output/
+outputs/
+*.log
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Data (large files)
+data/raw/
+*.gpkg
+*.tif
+*.tiff
+
+# OS
+Thumbs.db
+.DS_Store
