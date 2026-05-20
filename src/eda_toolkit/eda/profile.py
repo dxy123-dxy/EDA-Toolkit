@@ -11,6 +11,33 @@ import pandas as pd
 from eda_toolkit.io.dataset import SpatioTemporalDataset
 
 
+def _safe_nunique(series: pd.Series) -> int | None:
+    """Count unique values; fall back for array-like / unhashable elements."""
+    try:
+        return int(series.nunique(dropna=True))
+    except TypeError:
+        try:
+            return int(series.astype(str).nunique(dropna=True))
+        except Exception:
+            return None
+
+
+def _column_profile(series: pd.Series) -> dict[str, Any]:
+    info: dict[str, Any] = {
+        "dtype": str(series.dtype),
+        "n_missing": int(series.isna().sum()),
+        "missing_rate": float(series.isna().mean()) if len(series) else 0.0,
+        "n_unique": _safe_nunique(series),
+    }
+    if pd.api.types.is_numeric_dtype(series):
+        try:
+            desc = series.describe()
+            info["stats"] = {k: float(v) for k, v in desc.items() if pd.notna(v)}
+        except (TypeError, ValueError):
+            pass
+    return info
+
+
 def build_profile(dataset: SpatioTemporalDataset) -> dict[str, Any]:
     """Build profile dict: dimensions, CRS, time range, missing stats, duplicates."""
     gdf = dataset.gdf
@@ -21,20 +48,18 @@ def build_profile(dataset: SpatioTemporalDataset) -> dict[str, Any]:
         "quality": {},
     }
 
+    geom_col = gdf.geometry.name if hasattr(gdf, "geometry") else "geometry"
     for col in gdf.columns:
-        if col == "geometry":
+        if col == geom_col:
             continue
         series = gdf[col]
-        info: dict[str, Any] = {
-            "dtype": str(series.dtype),
-            "n_missing": int(series.isna().sum()),
-            "missing_rate": float(series.isna().mean()) if len(gdf) else 0.0,
-            "n_unique": int(series.nunique(dropna=True)),
-        }
-        if pd.api.types.is_numeric_dtype(series):
-            desc = series.describe()
-            info["stats"] = {k: float(v) for k, v in desc.items() if pd.notna(v)}
-        profile["columns"][col] = info
+        # Skip geometry-like or array-valued columns (unhashable for nunique)
+        if hasattr(series.dtype, "name") and series.dtype.name == "geometry":
+            continue
+        sample = series.dropna().head(1)
+        if len(sample) and hasattr(sample.iloc[0], "__geo_interface__"):
+            continue
+        profile["columns"][col] = _column_profile(series)
 
     invalid_geom = 0
     if not gdf.empty and hasattr(gdf.geometry, "is_valid"):
@@ -48,7 +73,12 @@ def build_profile(dataset: SpatioTemporalDataset) -> dict[str, Any]:
     if dataset.region_id_column and dataset.region_id_column in gdf.columns:
         dup_keys.append(dataset.region_id_column)
     if dup_keys:
-        n_dup = int(gdf.duplicated(subset=dup_keys).sum())
+        try:
+            n_dup = int(gdf.duplicated(subset=dup_keys).sum())
+        except TypeError:
+            n_dup = int(
+                gdf[dup_keys].astype(str).duplicated().sum()
+            )
         profile["quality"]["duplicate_spatiotemporal_keys"] = {
             "keys": dup_keys,
             "count": n_dup,

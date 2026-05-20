@@ -19,5 +19,8 @@ esda>=2.5
 pointpats>=2.4
 pykrige>=1.7
 
+# Web UI (optional)
+streamlit>=1.32
+
 # Dev
 pytest>=8.0

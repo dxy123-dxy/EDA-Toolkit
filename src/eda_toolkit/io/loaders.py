@@ -2,8 +2,9 @@
 
 from __future__ import annotations
 
+import tempfile
 from pathlib import Path
-from typing import Any
+from typing import Any, BinaryIO
 
 import geopandas as gpd
 import pandas as pd
@@ -44,3 +45,33 @@ def load_dataset(
         return SpatioTemporalDataset(gdf, time_column=time_column)
 
     raise ValueError(f"Unsupported file extension: {suffix}")
+
+
+def load_dataset_from_upload(
+    file_name: str,
+    file_bytes: bytes | BinaryIO,
+    *,
+    time_column: str | None = None,
+    lon_column: str = "longitude",
+    lat_column: str = "latitude",
+    crs: str | None = "EPSG:4326",
+    **read_kwargs: Any,
+) -> SpatioTemporalDataset:
+    """Load dataset from an uploaded file (e.g. Streamlit file uploader)."""
+    suffix = Path(file_name).suffix.lower()
+    if suffix not in _VECTOR_EXTENSIONS | _TABULAR_EXTENSIONS:
+        raise ValueError(f"Unsupported file extension: {suffix}")
+
+    data = file_bytes.read() if hasattr(file_bytes, "read") else file_bytes
+    with tempfile.NamedTemporaryFile(delete=False, suffix=suffix) as tmp:
+        tmp.write(data)
+        tmp_path = tmp.name
+
+    return load_dataset(
+        tmp_path,
+        time_column=time_column,
+        lon_column=lon_column,
+        lat_column=lat_column,
+        crs=crs,
+        **read_kwargs,
+    )

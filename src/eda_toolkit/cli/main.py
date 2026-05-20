@@ -16,6 +16,8 @@ from eda_toolkit.etl.registry import get_operator, list_operators
 from eda_toolkit.etl.operator import OperatorContext
 from eda_toolkit.io.loaders import load_dataset
 
+UI_APP = Path(__file__).resolve().parent.parent / "ui" / "app.py"
+
 app = typer.Typer(
     name="steda",
     help="Spatio-temporal EDA toolkit (EDA-Toolkit)",
@@ -98,6 +100,38 @@ def cmd_operators_execute(
         raise typer.Exit(1)
     for k, v in result.artifacts.items():
         console.print(f"  {k}: {v}")
+
+
+@app.command("ui")
+def cmd_ui(
+    port: int = typer.Option(8501, "--port", "-p", help="Streamlit server port"),
+    host: str = typer.Option("localhost", "--host", help="Bind address"),
+) -> None:
+    """Launch the visual web UI (Streamlit)."""
+    import subprocess
+    import sys
+
+    try:
+        import streamlit  # noqa: F401
+    except ImportError as exc:
+        console.print(
+            "[red]缺少 UI 依赖。请执行:[/red] pip install -e \".[ui]\""
+        )
+        raise typer.Exit(1) from exc
+
+    console.print(f"[green]启动 Web 界面:[/green] http://{host}:{port}")
+    cmd = [
+        sys.executable,
+        "-m",
+        "streamlit",
+        "run",
+        str(UI_APP),
+        "--server.port",
+        str(port),
+        "--server.address",
+        host,
+    ]
+    raise typer.Exit(subprocess.call(cmd))
 
 
 if __name__ == "__main__":

@@ -38,6 +38,7 @@ raster = ["xarray>=2024.1", "rioxarray>=0.15", "rasterio>=1.3"]
 spatial = ["libpysal>=4.9", "esda>=2.5", "pointpats>=2.4"]
 kriging = ["pykrige>=1.7"]
 dev = ["pytest>=8.0", "pytest-cov>=4.1"]
+ui = ["streamlit>=1.32"]
 
 [project.scripts]
 steda = "eda_toolkit.cli.main:app"
