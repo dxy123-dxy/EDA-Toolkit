@@ -5,6 +5,8 @@
   "pca_components": 3,
   "plots": true,
   "plot_options": {
+    "univariate_plots": true,
+    "multivariate_plots": true,
     "timeseries_title": "Sample spatio-temporal EDA"
   }
 }

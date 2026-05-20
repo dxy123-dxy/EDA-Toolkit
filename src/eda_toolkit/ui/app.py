@@ -20,6 +20,7 @@ from eda_toolkit.eda.multivariate import analyze_multivariate
 from eda_toolkit.etl.registry import get_operator, list_operators
 from eda_toolkit.etl.operator import OperatorContext
 from eda_toolkit.io.loaders import load_dataset, load_dataset_from_upload
+from eda_toolkit.viz import plots as viz_plots
 
 ROOT = Path(__file__).resolve().parents[3]
 SAMPLE_PATH = ROOT / "examples" / "data" / "sample_points.geojson"
@@ -189,6 +190,34 @@ def _tab_profile(ds: Any) -> None:
         st.json(profile)
 
 
+def _show_matplotlib_fig(fig: Any, caption: str = "") -> None:
+    if fig is None:
+        return
+    if caption:
+        st.caption(caption)
+    st.pyplot(fig, clear_figure=True)
+
+
+def _render_univariate_charts(ds: Any, col: str) -> None:
+    st.markdown("**图表**")
+    row1 = st.columns(2)
+    with row1[0]:
+        _show_matplotlib_fig(viz_plots.plot_distribution(ds, col), "分布（直方图 + KDE）")
+    with row1[1]:
+        _show_matplotlib_fig(viz_plots.plot_boxplot(ds, col), "箱线图（按时间）")
+    row2 = st.columns(2)
+    with row2[0]:
+        _show_matplotlib_fig(viz_plots.plot_spatial_values(ds, col), "空间分布")
+    with row2[1]:
+        if ds.has_time:
+            _show_matplotlib_fig(viz_plots.plot_timeseries(ds, col), "时间序列（均值 + 空间范围）")
+    if ds.has_time:
+        _show_matplotlib_fig(
+            viz_plots.plot_temporal_decomposition(ds, col),
+            "时间聚合（均值 ± 标准差 / min–max）",
+        )
+
+
 def _tab_univariate(ds: Any) -> None:
     st.subheader("单变量分析")
     numeric = ds.numeric_columns
@@ -197,6 +226,7 @@ def _tab_univariate(ds: Any) -> None:
         return
 
     selected = st.multiselect("选择字段", numeric, default=numeric[: min(3, len(numeric))])
+    show_charts = st.checkbox("显示图表", value=True)
     if st.button("运行单变量分析", type="primary"):
         with st.spinner("计算中..."):
             result = analyze_univariate(ds, columns=selected or None)
@@ -209,6 +239,8 @@ def _tab_univariate(ds: Any) -> None:
 
     for col, stats in result.get("columns", {}).items():
         with st.expander(f"字段: {col}", expanded=len(result.get("columns", {})) <= 2):
+            if show_charts:
+                _render_univariate_charts(ds, col)
             if "spatial" in stats:
                 st.markdown("**空间统计**")
                 st.json(stats["spatial"])
@@ -228,6 +260,7 @@ def _tab_multivariate(ds: Any) -> None:
         return
 
     pca_n = st.slider("PCA 主成分数", 2, min(10, len(numeric)), 3)
+    show_charts = st.checkbox("显示图表", value=True, key="multi_show_charts")
     if st.button("运行多变量分析", type="primary"):
         with st.spinner("计算中..."):
             result = analyze_multivariate(ds, pca_components=pca_n)
@@ -238,17 +271,45 @@ def _tab_multivariate(ds: Any) -> None:
         st.info("点击运行多变量分析。")
         return
 
-    if "pearson" in result:
-        st.markdown("**Pearson 相关矩阵**")
-        st.dataframe(pd.DataFrame(result["pearson"]), use_container_width=True)
-    if "pca" in result:
-        st.markdown("**PCA 方差解释比**")
-        st.bar_chart(
-            pd.Series(
-                result["pca"]["explained_variance_ratio"],
-                index=[f"PC{i+1}" for i in range(len(result["pca"]["explained_variance_ratio"]))],
-            )
+    if show_charts:
+        st.markdown("**图表**")
+        c1, c2 = st.columns(2)
+        if "pearson" in result:
+            with c1:
+                _show_matplotlib_fig(
+                    viz_plots.plot_correlation_heatmap(
+                        result["pearson"], title="Pearson 相关矩阵"
+                    )
+                )
+        if "spearman" in result:
+            with c2:
+                _show_matplotlib_fig(
+                    viz_plots.plot_correlation_heatmap(
+                        result["spearman"], title="Spearman 相关矩阵"
+                    )
+                )
+        _show_matplotlib_fig(
+            viz_plots.plot_pairwise_scatter(ds, numeric),
+            "两两散点矩阵",
         )
+        if "pca" in result:
+            pca = result["pca"]
+            c3, c4 = st.columns(2)
+            with c3:
+                _show_matplotlib_fig(
+                    viz_plots.plot_pca_scree(pca["explained_variance_ratio"]),
+                    "PCA 碎石图",
+                )
+            with c4:
+                if "loadings" in pca:
+                    _show_matplotlib_fig(
+                        viz_plots.plot_pca_loadings(pca["loadings"]),
+                        "PCA 载荷",
+                    )
+
+    if "pearson" in result:
+        st.markdown("**Pearson 相关矩阵（表）**")
+        st.dataframe(pd.DataFrame(result["pearson"]), use_container_width=True)
     with st.expander("完整结果 JSON"):
         st.json(result)
 
@@ -282,10 +343,18 @@ def _tab_plots_and_run(ds: Any, cfg: dict[str, Any]) -> None:
 
     figures = st.session_state.get("eda_figures", {})
     if figures:
-        st.markdown("**图表**")
-        cols = st.columns(min(len(figures), 2))
-        for i, (name, data) in enumerate(figures.items()):
-            cols[i % len(cols)].image(data, caption=name, use_container_width=True)
+        uni_keys = sorted(k for k in figures if k.startswith("uni_"))
+        other_keys = sorted(k for k in figures if not k.startswith("uni_"))
+        if uni_keys:
+            st.markdown("**单变量图表**")
+            cols = st.columns(2)
+            for i, name in enumerate(uni_keys):
+                cols[i % 2].image(figures[name], caption=name, use_container_width=True)
+        if other_keys:
+            st.markdown("**多变量 / 综合图表**")
+            cols = st.columns(2)
+            for i, name in enumerate(other_keys):
+                cols[i % 2].image(figures[name], caption=name, use_container_width=True)
 
     tabs = st.tabs(["Profile", "单变量", "多变量"])
     with tabs[0]:

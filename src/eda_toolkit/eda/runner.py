@@ -10,7 +10,12 @@ from eda_toolkit.eda.multivariate import analyze_multivariate
 from eda_toolkit.eda.profile import build_profile, save_profile
 from eda_toolkit.eda.univariate import analyze_univariate
 from eda_toolkit.io.dataset import SpatioTemporalDataset
-from eda_toolkit.viz.plots import plot_choropleth, plot_timeseries
+from eda_toolkit.viz.plots import (
+    generate_multivariate_figures,
+    generate_univariate_figures,
+    plot_choropleth,
+    plot_timeseries,
+)
 
 
 def run_eda(
@@ -38,12 +43,21 @@ def run_eda(
             save_profile(profile, output_dir)
             result["figures"]["profile_json"] = str(output_dir / "profile.json")
 
+    plot_enabled = config.get("plots", True) and output_dir is not None
+    fig_cfg = config.get("plot_options", {})
+
     if config.get("univariate", True):
         uni = analyze_univariate(dataset, columns=columns)
         result["tables"]["univariate"] = uni
         if output_dir:
             _save_json(output_dir / "univariate.json", uni)
+        if plot_enabled and fig_cfg.get("univariate_plots", True):
+            uni_figs = generate_univariate_figures(
+                dataset, columns=columns, output_dir=output_dir
+            )
+            result["figures"].update(uni_figs)
 
+    multi: dict[str, Any] | None = None
     if config.get("multivariate", True):
         multi = analyze_multivariate(
             dataset,
@@ -53,10 +67,14 @@ def run_eda(
         result["tables"]["multivariate"] = multi
         if output_dir:
             _save_json(output_dir / "multivariate.json", multi)
+        if plot_enabled and fig_cfg.get("multivariate_plots", True) and multi:
+            multi_figs = generate_multivariate_figures(
+                dataset, multi, columns=columns, output_dir=output_dir
+            )
+            result["figures"].update(multi_figs)
 
-    if config.get("plots", True) and output_dir:
-        fig_cfg = config.get("plot_options", {})
-        _run_plots(dataset, columns, output_dir, fig_cfg, result)
+    if plot_enabled:
+        _run_legacy_plots(dataset, columns, output_dir, fig_cfg, result)
 
     if output_dir:
         manifest = {
@@ -71,7 +89,7 @@ def run_eda(
     return result
 
 
-def _run_plots(
+def _run_legacy_plots(
     dataset: SpatioTemporalDataset,
     columns: list[str] | None,
     output_dir: Path,

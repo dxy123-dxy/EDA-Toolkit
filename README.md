@@ -4,6 +4,7 @@
 
 - 远程仓库：[dxy123-dxy/EDA-Toolkit](https://github.com/dxy123-dxy/EDA-Toolkit)
 - 技术路线：见 [docs/技术路线-时空数据分析挖掘.md](docs/技术路线-时空数据分析挖掘.md)
+- 使用流程与分析说明：见 [docs/使用流程与分析说明.md](docs/使用流程与分析说明.md)
 
 ## 功能（当前 v0.1）
 
@@ -12,7 +13,7 @@
 | 数据接入与 `SpatioTemporalDataset` | ✅ |
 | Profile（质量检查 + 元数据 JSON） | ✅ |
 | 单变量 / 多变量 EDA | ✅ 基础版 |
-| 可视化（时间序列、choropleth） | ✅ 基础版 |
+| 可视化（单变量/多变量丰富图表） | ✅ |
 | ETL 算子契约与注册表 | ✅ 骨架 |
 | **Web 可视化界面** | ✅ Streamlit |
 | 点模式 / 面 LISA / 克里金 | 🔜 阶段 1.2 |
