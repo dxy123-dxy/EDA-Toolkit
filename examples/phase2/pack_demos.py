@@ -217,6 +217,7 @@ def main() -> int:
 | Demo | 路径 | 一句话 |
 |------|------|--------|
 | **总览** | `docs/阶段2-演示说明.md` · `output/phase2/DEMO_BRIEF.md` | Demo + 结论 + 跨场景协议 + 验收命令 |
+| **演示文稿** | `docs/阶段2-技术演示文稿.md` | 流程图 + D1/D2 插图 + 口述脚本 |
 | D1 站点填图 | `output/phase2/demo_d1/` | BTHSA 站点 hold-out：IDW / 克里金（+ 同遮罩 UniST） |
 | D2 面/网格 + 跨场景 | `output/phase2/demo_d2/` | BTHSA→YRD Prompt 优于 Scratch；同遮罩对照经典基线 |
 
