@@ -1,3 +1,9 @@
-"""Spatial interpolation — IDW, Kriging (planned)."""
+"""Spatial interpolation — IDW, Ordinary Kriging, empirical variogram."""
 
-# Phase 1.2: pykrige integration
+from eda_toolkit.algorithms.interpolation.idw import idw_interpolate
+from eda_toolkit.algorithms.interpolation.kriging import (
+    empirical_variogram,
+    ordinary_kriging,
+)
+
+__all__ = ["idw_interpolate", "empirical_variogram", "ordinary_kriging"]

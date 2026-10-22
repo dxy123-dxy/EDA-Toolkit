@@ -8,8 +8,10 @@ dist/
 build/
 *.egg
 .venv/
+.venv-ml/
 venv/
 .env
+third_party/
 
 # IDE
 .idea/
@@ -29,6 +31,9 @@ data/raw/
 *.gpkg
 *.tif
 *.tiff
+*.nc
+*.npz
+examples/phase2/data/knowair_v2/dataset_*.nc
 
 # OS
 Thumbs.db

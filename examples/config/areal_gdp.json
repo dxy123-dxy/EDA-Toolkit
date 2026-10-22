@@ -1,0 +1,7 @@
+{
+  "column": "gdp",
+  "weight_type": "queen",
+  "include_geary": true,
+  "include_lisa": true,
+  "p_threshold": 0.05
+}

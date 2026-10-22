@@ -1,0 +1,23 @@
+{
+"type": "FeatureCollection",
+"name": "sample_polygons",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "region_id": "R00", "gdp": 85.281046919353287, "pop": 1852 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.4, 39.85 ], [ 116.4, 39.9 ], [ 116.35, 39.9 ], [ 116.35, 39.85 ], [ 116.4, 39.85 ] ] ] } },
+{ "type": "Feature", "properties": { "region_id": "R01", "gdp": 71.642095543348873, "pop": 1716 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.45, 39.85 ], [ 116.45, 39.9 ], [ 116.4, 39.9 ], [ 116.4, 39.85 ], [ 116.45, 39.85 ] ] ] } },
+{ "type": "Feature", "properties": { "region_id": "R02", "gdp": 63.788951924729623, "pop": 1637 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.5, 39.85 ], [ 116.5, 39.9 ], [ 116.45, 39.9 ], [ 116.45, 39.85 ], [ 116.5, 39.85 ] ] ] } },
+{ "type": "Feature", "properties": { "region_id": "R03", "gdp": 82.196311833071974, "pop": 1821 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.55, 39.85 ], [ 116.55, 39.9 ], [ 116.5, 39.9 ], [ 116.5, 39.85 ], [ 116.55, 39.85 ] ] ] } },
+{ "type": "Feature", "properties": { "region_id": "R04", "gdp": 86.316103361176317, "pop": 1863 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.4, 39.9 ], [ 116.4, 39.95 ], [ 116.35, 39.95 ], [ 116.35, 39.9 ], [ 116.4, 39.9 ] ] ] } },
+{ "type": "Feature", "properties": { "region_id": "R05", "gdp": 65.272448323042227, "pop": 1652 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.45, 39.9 ], [ 116.45, 39.95 ], [ 116.4, 39.95 ], [ 116.4, 39.9 ], [ 116.45, 39.9 ] ] ] } },
+{ "type": "Feature", "properties": { "region_id": "R06", "gdp": 56.758528650610707, "pop": 1567 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.5, 39.9 ], [ 116.5, 39.95 ], [ 116.45, 39.95 ], [ 116.45, 39.9 ], [ 116.5, 39.9 ] ] ] } },
+{ "type": "Feature", "properties": { "region_id": "R07", "gdp": 70.09181196267545, "pop": 1700 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.55, 39.9 ], [ 116.55, 39.95 ], [ 116.5, 39.95 ], [ 116.5, 39.9 ], [ 116.55, 39.9 ] ] ] } },
+{ "type": "Feature", "properties": { "region_id": "R08", "gdp": 67.643391383564094, "pop": 1676 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.4, 39.95 ], [ 116.4, 40.0 ], [ 116.35, 40.0 ], [ 116.35, 39.95 ], [ 116.4, 39.95 ] ] ] } },
+{ "type": "Feature", "properties": { "region_id": "R09", "gdp": 55.988298802091855, "pop": 1559 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.45, 39.95 ], [ 116.45, 40.0 ], [ 116.4, 40.0 ], [ 116.4, 39.95 ], [ 116.45, 39.95 ] ] ] } },
+{ "type": "Feature", "properties": { "region_id": "R10", "gdp": 52.637263053742146, "pop": 1526 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.5, 39.95 ], [ 116.5, 40.0 ], [ 116.45, 40.0 ], [ 116.45, 39.95 ], [ 116.5, 39.95 ] ] ] } },
+{ "type": "Feature", "properties": { "region_id": "R11", "gdp": 61.985241436758727, "pop": 1619 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.55, 39.95 ], [ 116.55, 40.0 ], [ 116.5, 40.0 ], [ 116.5, 39.95 ], [ 116.55, 39.95 ] ] ] } },
+{ "type": "Feature", "properties": { "region_id": "R12", "gdp": 56.578188733534361, "pop": 1565 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.4, 40.0 ], [ 116.4, 40.05 ], [ 116.35, 40.05 ], [ 116.35, 40.0 ], [ 116.4, 40.0 ] ] ] } },
+{ "type": "Feature", "properties": { "region_id": "R13", "gdp": 55.950461958923185, "pop": 1559 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.45, 40.0 ], [ 116.45, 40.05 ], [ 116.4, 40.05 ], [ 116.4, 40.0 ], [ 116.45, 40.0 ] ] ] } },
+{ "type": "Feature", "properties": { "region_id": "R14", "gdp": 55.600901611687519, "pop": 1556 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.5, 40.0 ], [ 116.5, 40.05 ], [ 116.45, 40.05 ], [ 116.45, 40.0 ], [ 116.5, 40.0 ] ] ] } },
+{ "type": "Feature", "properties": { "region_id": "R15", "gdp": 61.879273191217727, "pop": 1618 }, "geometry": { "type": "Polygon", "coordinates": [ [ [ 116.55, 40.0 ], [ 116.55, 40.05 ], [ 116.5, 40.05 ], [ 116.5, 40.0 ], [ 116.55, 40.0 ] ] ] } }
+]
+}

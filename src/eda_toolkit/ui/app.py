@@ -27,7 +27,12 @@ from eda_toolkit.io.loaders import (
 from eda_toolkit.viz import plots as viz_plots
 
 ROOT = Path(__file__).resolve().parents[3]
-SAMPLE_PATH = ROOT / "examples" / "data" / "sample_points.geojson"
+SAMPLE_DIR = ROOT / "examples" / "data"
+SAMPLES = {
+    "站点样例 (sample_points)": SAMPLE_DIR / "sample_points.geojson",
+    "点事件样例 (sample_events)": SAMPLE_DIR / "sample_events.geojson",
+    "区县面样例 (sample_polygons)": SAMPLE_DIR / "sample_polygons.geojson",
+}
 
 
 def _init_session() -> None:
@@ -36,11 +41,24 @@ def _init_session() -> None:
         "file_name": None,
         "profile": None,
         "eda_result": None,
+        "eda_figures": {},
+        "univariate": None,
+        "multivariate": None,
         "last_error": None,
     }
     for key, val in defaults.items():
         if key not in st.session_state:
             st.session_state[key] = val
+
+
+def _reset_analysis_state() -> None:
+    """Clear cached analysis so old columns (e.g. gdp) cannot render on a new dataset."""
+    st.session_state.profile = None
+    st.session_state.eda_result = None
+    st.session_state.eda_figures = {}
+    st.session_state.univariate = None
+    st.session_state.multivariate = None
+    st.session_state.last_error = None
 
 
 def _load_uploaded(
@@ -69,22 +87,21 @@ def _load_uploaded(
             )
         st.session_state.dataset = ds
         st.session_state.file_name = ", ".join(u.name for u in files)
-        st.session_state.profile = None
-        st.session_state.eda_result = None
-        st.session_state.last_error = None
+        _reset_analysis_state()
     except Exception as exc:
         st.session_state.last_error = str(exc)
         st.error(f"加载失败: {exc}")
 
 
-def _load_sample(time_column: str) -> None:
+def _load_sample(time_column: str, sample_key: str) -> None:
     try:
-        ds = load_dataset(SAMPLE_PATH, time_column=time_column or "timestamp")
+        path = SAMPLES[sample_key]
+        # Polygons have no time column
+        tc = None if "polygons" in path.name else (time_column or "timestamp")
+        ds = load_dataset(path, time_column=tc)
         st.session_state.dataset = ds
-        st.session_state.file_name = "sample_points.geojson"
-        st.session_state.profile = None
-        st.session_state.eda_result = None
-        st.session_state.last_error = None
+        st.session_state.file_name = path.name
+        _reset_analysis_state()
     except Exception as exc:
         st.session_state.last_error = str(exc)
         st.error(f"加载样例失败: {exc}")
@@ -147,8 +164,9 @@ def _render_sidebar() -> dict[str, Any]:
             if st.sidebar.button("加载数据", type="primary", use_container_width=True):
                 _load_uploaded(uploaded, time_column.strip() or None, lon_col, lat_col)
     else:
+        sample_key = st.sidebar.selectbox("选择样例", list(SAMPLES.keys()))
         if st.sidebar.button("加载内置样例", type="primary", use_container_width=True):
-            _load_sample(time_column.strip() or "timestamp")
+            _load_sample(time_column.strip() or "timestamp", sample_key)
 
     st.sidebar.divider()
     st.sidebar.subheader("EDA 选项")
@@ -232,6 +250,9 @@ def _show_matplotlib_fig(fig: Any, caption: str = "") -> None:
 
 
 def _render_univariate_charts(ds: Any, col: str) -> None:
+    if col not in ds.gdf.columns:
+        st.warning(f"当前数据没有字段「{col}」，请重新运行单变量分析。")
+        return
     st.markdown("**图表**")
     row1 = st.columns(2)
     with row1[0]:
@@ -270,8 +291,19 @@ def _tab_univariate(ds: Any) -> None:
         st.info("选择字段后点击运行。")
         return
 
-    for col, stats in result.get("columns", {}).items():
-        with st.expander(f"字段: {col}", expanded=len(result.get("columns", {})) <= 2):
+    # Drop stale columns left from a previously loaded dataset
+    columns = {
+        col: stats
+        for col, stats in result.get("columns", {}).items()
+        if col in ds.gdf.columns
+    }
+    if not columns:
+        st.info("缓存结果与当前数据字段不一致，请重新点击「运行单变量分析」。")
+        st.session_state.univariate = None
+        return
+
+    for col, stats in columns.items():
+        with st.expander(f"字段: {col}", expanded=len(columns) <= 2):
             if show_charts:
                 _render_univariate_charts(ds, col)
             if "spatial" in stats:
@@ -302,6 +334,13 @@ def _tab_multivariate(ds: Any) -> None:
     result = st.session_state.get("multivariate")
     if not result:
         st.info("点击运行多变量分析。")
+        return
+
+    # Stale multivariate cache after dataset switch
+    pearson = result.get("pearson") or {}
+    if pearson and not set(pearson.keys()).issubset(set(ds.gdf.columns)):
+        st.info("缓存结果与当前数据字段不一致，请重新点击「运行多变量分析」。")
+        st.session_state.multivariate = None
         return
 
     if show_charts:
@@ -403,7 +442,7 @@ def _tab_plots_and_run(ds: Any, cfg: dict[str, Any]) -> None:
 
 def _tab_operators() -> None:
     st.subheader("ETL 算子")
-    st.caption("与数据治理流水线对接的算子列表（只读展示）。")
+    st.caption("阶段 1.1 EDA + 阶段 1.2 经典算法算子，可直接试跑。")
 
     ops = list_operators()
     st.dataframe(pd.DataFrame(ops), use_container_width=True, hide_index=True)
@@ -414,6 +453,55 @@ def _tab_operators() -> None:
         return
 
     op_name = st.selectbox("选择算子", [o["name"] for o in ops])
+    numeric = ds.numeric_columns
+    column = None
+    if op_name in ("areal_autocorr", "idw", "kriging", "variogram"):
+        if not numeric:
+            st.warning("当前数据无数值列，无法运行该算子。")
+            return
+        column = st.selectbox("分析字段 column", numeric)
+
+    extra: dict[str, Any] = {}
+    if op_name == "eda_run":
+        extra = {
+            "eda_config": {
+                "profile": True,
+                "univariate": True,
+                "multivariate": True,
+                "plots": False,
+            }
+        }
+    elif op_name == "point_pattern":
+        extra = {
+            "kde": True,
+            "ripley": True,
+            "n_simulations": 49,
+            "support": 10,
+            "kde_grid_size": 25,
+            "functions": ["K", "L", "G"],
+        }
+    elif op_name == "areal_autocorr" and column:
+        gtype = ds.geometry_type
+        extra = {
+            "column": column,
+            "weight_type": "knn" if gtype in ("Point", "MultiPoint") else "queen",
+        }
+    elif op_name == "dl_infer":
+        st.info(
+            "dl_infer 需要 `.venv-ml` + UniST 权重；Web 试跑仅适合本机已训过的环境。"
+            "推荐 CLI：见 docs/etl_operators.md。"
+        )
+        preset = st.selectbox("preset", ["bthsa_long", "yrd_prompt"])
+        extra = {
+            "preset": preset,
+            "max_windows": 4,
+            "batch_size": 2,
+            "mask_ratio": 0.5,
+            "seed": 42,
+        }
+    elif column:
+        extra = {"column": column, "grid_size": 20}
+
     if st.button(f"执行算子: {op_name}", type="secondary"):
         import tempfile
 
@@ -423,12 +511,7 @@ def _tab_operators() -> None:
             ctx = OperatorContext(
                 input_path=tmp_path,
                 output_dir=Path(tmp) / "out",
-                params={"eda_config": {
-                    "profile": True,
-                    "univariate": True,
-                    "multivariate": True,
-                    "plots": False,
-                }},
+                params=extra,
                 time_column=ds.time_column,
             )
             try:

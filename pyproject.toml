@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "eda-toolkit"
-version = "0.1.0"
+version = "0.2.0"
 description = "Spatio-temporal exploratory data analysis and classic spatial statistics toolkit"
 readme = "README.md"
 requires-python = ">=3.10"
@@ -39,6 +39,16 @@ spatial = ["libpysal>=4.9", "esda>=2.5", "pointpats>=2.4"]
 kriging = ["pykrige>=1.7"]
 dev = ["pytest>=8.0", "pytest-cov>=4.1"]
 ui = ["streamlit>=1.32"]
+# Phase 2 / UniST: install CUDA torch from PyTorch index first (see examples/phase2/README.md)
+ml = [
+    "xarray>=2024.1",
+    "netCDF4>=1.6",
+    "timm>=0.9.2",
+    "tensorboard>=2.14",
+    "joblib>=1.3",
+    "setproctitle>=1.3",
+    "tqdm>=4.66",
+]
 
 [project.scripts]
 steda = "eda_toolkit.cli.main:app"

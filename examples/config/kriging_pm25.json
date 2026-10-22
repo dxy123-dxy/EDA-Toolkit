@@ -1,0 +1,7 @@
+{
+  "column": "pm25",
+  "variogram_model": "linear",
+  "grid_size": 30,
+  "nlags": 6,
+  "leave_one_out_cv": true
+}

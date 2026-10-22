@@ -1,0 +1,19 @@
+{
+  "protocol": "knowair_grid_v1",
+  "description": "Station panel → regular lon/lat grid for UniST (T×C×H×W).",
+  "aggregation": "mean of stations whose lon/lat fall in the cell",
+  "empty_cells": "NaN in raw; filled with 0.0 for model tensor; occupied mask saved",
+  "default_variable": ["PM2.5"],
+  "recommended_smoke": {
+    "region": "bthsa",
+    "grid_hw": [16, 16],
+    "time_start": "2023-01-01",
+    "time_end": "2023-03-31",
+    "stride": 1
+  },
+  "notes": [
+    "H+W < 32 keeps UniST on its smallest batch_size path",
+    "D1 IDW/Kriging baselines stay on original station points; grid is for UniST only",
+    "Cross-scene: build bthsa and yrd with the same H×W and variable set"
+  ]
+}

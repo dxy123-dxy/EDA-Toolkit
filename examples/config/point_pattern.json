@@ -1,0 +1,10 @@
+{
+  "kde": true,
+  "ripley": true,
+  "kde_grid_size": 40,
+  "support": 15,
+  "n_simulations": 99,
+  "functions": ["K", "L", "G"],
+  "run_csr_test": true,
+  "random_state": 42
+}

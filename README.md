@@ -5,8 +5,12 @@
 - 远程仓库：[dxy123-dxy/EDA-Toolkit](https://github.com/dxy123-dxy/EDA-Toolkit)
 - 技术路线：见 [docs/技术路线-时空数据分析挖掘.md](docs/技术路线-时空数据分析挖掘.md)
 - 使用流程与分析说明：见 [docs/使用流程与分析说明.md](docs/使用流程与分析说明.md)
+- **阶段 1.2 交付说明**：见 [docs/阶段1.2-经典算法交付说明.md](docs/阶段1.2-经典算法交付说明.md)
+- **阶段 2 计划（基础模型 + 未观测预测）**：见 [docs/阶段2-时空基础模型与预测计划.md](docs/阶段2-时空基础模型与预测计划.md)
+- **阶段 2 演示说明（Demo + 结论）**：见 [docs/阶段2-演示说明.md](docs/阶段2-演示说明.md)
+- ETL 算子：见 [docs/etl_operators.md](docs/etl_operators.md)
 
-## 功能（当前 v0.1）
+## 功能（当前 v0.2）
 
 | 模块 | 状态 |
 |------|------|
@@ -14,9 +18,11 @@
 | Profile（质量检查 + 元数据 JSON） | ✅ |
 | 单变量 / 多变量 EDA | ✅ 基础版 |
 | 可视化（单变量/多变量丰富图表） | ✅ |
-| ETL 算子契约与注册表 | ✅ 骨架 |
+| ETL 算子契约与注册表 | ✅ |
 | **Web 可视化界面** | ✅ Streamlit |
-| 点模式 / 面 LISA / 克里金 | 🔜 阶段 1.2 |
+| 面数据 Moran / Geary / LISA | ✅ |
+| 点模式 KDE + Ripley K/L/G | ✅ |
+| IDW / 普通克里金 / 经验变异函数 | ✅ |
 
 ## 安装
 
@@ -40,6 +46,15 @@ steda run --input examples/data/sample_points.geojson --config examples/config/e
 
 # 列出已注册 ETL 算子
 steda operators list
+
+# 阶段 1.2：面 LISA / 点模式 / 插值
+steda operators execute areal_autocorr -i examples/data/sample_polygons.geojson -o output/lisa -p examples/config/areal_gdp.json
+steda operators execute point_pattern -i examples/data/sample_events.geojson -o output/pp -p examples/config/point_pattern.json -t timestamp
+steda operators execute idw -i examples/data/sample_events.geojson -o output/idw -p examples/config/idw_pm25.json -t timestamp
+steda operators execute kriging -i examples/data/sample_events.geojson -o output/krig -p examples/config/kriging_pm25.json -t timestamp
+
+# 两条端到端流水线样例
+python examples/run_phase12_pipelines.py
 
 # 启动可视化 Web 界面（浏览器打开 http://localhost:8501）
 steda ui
