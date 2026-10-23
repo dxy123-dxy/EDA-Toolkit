@@ -178,6 +178,22 @@ explorer.exe output\phase2\eval
 
 说明：站点 hold-out 是 D1 主叙事；跨场景以「Prompt vs 从零」同预算对比为主叙事。长训 Prompt test temporal RMSE ≈ 6.1（优于同预算 Scratch ≈ 9.9）。
 
+## 查看训练曲线（TensorBoard 回放）
+
+已完成实验的标量在 `third_party/UniST/src/logs/`（不是现场重训）：
+
+```powershell
+# 全部 run（默认 http://localhost:6006）
+.\.venv-ml\Scripts\python.exe examples\phase2\launch_tensorboard.py
+
+# 只看长训 / Prompt / Scratch
+.\.venv-ml\Scripts\python.exe examples\phase2\launch_tensorboard.py --preset long
+.\.venv-ml\Scripts\python.exe examples\phase2\launch_tensorboard.py --preset prompt
+.\.venv-ml\Scripts\python.exe examples\phase2\launch_tensorboard.py --preset scratch
+```
+
+浏览器里优先看 `Training/Loss_step`、`Test_RMSE/*`、`Test_MAE/*`。Preset：`long` = BTHSA 40 epoch；`prompt` / `scratch` = YRD 跨场景对照。
+
 ## Demo 打包（D1 / D2）
 
 ```powershell
