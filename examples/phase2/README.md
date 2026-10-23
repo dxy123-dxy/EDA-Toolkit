@@ -157,7 +157,8 @@ explorer.exe output\phase2\eval
 | BTHSA（Long） | IDW ≈ 8.37 | ≈ 23.5 |
 
 产物：`output/phase2/eval/same_mask_{yrd,bthsa}_seed42.json` / `.md`  
-说明：纯空间补全上经典插值更强属预期；UniST 主叙事见下方跨场景 Prompt vs Scratch。
+说明：纯空间补全上经典插值更强属预期；UniST 主叙事见下方跨场景 Prompt vs Scratch。  
+**专档（协议 A/B、站点图、话术）**：[docs/阶段2-经典插值基线实验-IDW与克里金.md](../../docs/阶段2-经典插值基线实验-IDW与克里金.md)
 
 ## 跨场景 Prompt（BTHSA → YRD）
 
@@ -176,7 +177,24 @@ explorer.exe output\phase2\eval
 
 进度总览：`output/phase2/PROGRESS.md`
 
-说明：站点 hold-out 是 D1 主叙事；跨场景以「Prompt vs 从零」同预算对比为主叙事。长训 Prompt test temporal RMSE ≈ 6.1（优于同预算 Scratch ≈ 9.9）。
+说明：**D2 主叙事**是跨场景「Prompt vs Scratch」；长训 Prompt test temporal RMSE ≈ 6.1（优于同预算 Scratch ≈ 9.9）。同遮罩 IDW 对照为附录。
+
+## 官方论文数据 Demo D1（BikeNYC / TrafficHZ）
+
+数据源默认：`E:\数据分析模型训练数据\data_release`（联接进 `third_party/UniST/dataset/`）。
+
+```powershell
+.\.venv-ml\Scripts\python.exe examples\phase2\link_unist_paper_data.py --also-list
+.\.venv-ml\Scripts\python.exe examples\phase2\run_unist_paper_demo.py --also-hz --epochs 3
+.\.venv-ml\Scripts\python.exe examples\phase2\plot_unist_demo_figures.py
+```
+
+| 产物 | 说明 |
+|------|------|
+| `output/phase2/eval/paper_demo_bikenyc.*` | BikeNYC Stage-1 各 mask RMSE |
+| `output/phase2/eval/paper_demo_traffichz.*` | TrafficHZ Stage-1 |
+| `output/phase2/eval/01_unist_mask_bars_*.png` | UniST 柱状图（无 IDW） |
+| `output/phase2/eval/02_unist_recon_heatmap_*.png` | 真值 vs 重建热力图 |
 
 ## 查看训练曲线（TensorBoard 回放）
 
@@ -194,9 +212,10 @@ explorer.exe output\phase2\eval
 
 浏览器里优先看 `Training/Loss_step`、`Test_RMSE/*`、`Test_MAE/*`。Preset：`long` = BTHSA 40 epoch；`prompt` / `scratch` = YRD 跨场景对照。
 
-## Demo 打包（D1 / D2）
+## Demo 打包（UniST 优先 · D1 / D2）
 
 ```powershell
+.\.venv-ml\Scripts\python.exe examples\phase2\plot_unist_demo_figures.py
 .\.venv-ml\Scripts\python.exe examples\phase2\pack_demos.py
 explorer.exe output\phase2\demo_d1
 explorer.exe output\phase2\demo_d2
@@ -204,9 +223,10 @@ explorer.exe output\phase2\demo_d2
 
 | 目录 | 说明 |
 |------|------|
-| `output/phase2/demo_d1/` | 站点填图：图 + 指标 + 一页 README |
-| `output/phase2/demo_d2/` | 跨场景网格补全：Prompt vs Scratch + 同遮罩 |
+| `output/phase2/demo_d1/` | **官方场景**：BikeNYC / TrafficHZ UniST Stage-1 |
+| `output/phase2/demo_d2/` | **跨城落地**：Prompt vs Scratch（主）+ 同遮罩附录 |
 | `output/phase2/demo_INDEX.md` | 总览 |
+| `docs/阶段2-技术演示文稿.md` | UniST 主角演示稿 |
 
 ## ETL `dl_infer` 算子
 
